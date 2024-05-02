@@ -14,19 +14,20 @@ def check_proxy(proxy):
     time.sleep(0.001) 
     checker = ProxyChecker()
     r = checker.check_proxy(proxy)
-    r["address"] = proxy
-    checking.append(r)
-
+    r["address"] = proxy[:-1]
+    return r
 
 def main():
+    global checking
     with Progress(BarColumn(), TaskProgressColumn( ),
                   TimeElapsedColumn() ) as progress:
         task = progress.add_task("[green]Checking...", total=NUM_TASKS)
         for i in range(1, 168):
             with open(os.path.join("proxies", str(i)+ ".txt")) as f:
-                executor = concurrent.futures.ProcessPoolExecutor(200)
+                executor = concurrent.futures.ProcessPoolExecutor(248)
                 futures = [executor.submit(check_proxy, line) for line in f]              
                 for _ in concurrent.futures.as_completed(futures):
+                    checking.append(_.result())
                     progress.update(task, advance=1)
     with open("results.json", 'w') as output_file:
 	    json.dump(checking, output_file, indent=2)
