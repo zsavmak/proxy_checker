@@ -1,0 +1,4 @@
+proxies
+*.zip
+*.pyc
+results.json
